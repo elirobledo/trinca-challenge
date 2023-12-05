@@ -15,6 +15,7 @@ namespace Domain.Entities
             Date = @event.Date;
             Reason = @event.Reason;
             Status = BbqStatus.New;
+            IsTrincasPaying = @event.IsTrincasPaying;
         }
 
         public void When(BbqStatusUpdated @event)

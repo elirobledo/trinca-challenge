@@ -5,6 +5,7 @@ using Domain.Events;
 using Domain.Entities;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using System;
 
 namespace Serverless_Api
 {
@@ -44,8 +45,8 @@ namespace Serverless_Api
             foreach (var personId in Lookups.ModeratorIds)
             {
                 var header = await _peopleStore.ReadHeader(personId);
-                var @event = new PersonHasBeenInvitedToBbq(churras.Id, churras.Date, churras.Reason);
-                await _peopleStore.WriteToStream(personId, new[] { new EventData(personId, @event, new { CreatedBy = _user.Id }, header.StreamHeader.Version, DateTime.Now.ToString()) }, expectedVersion: header.StreamHeader.Version == 0 ? null : header.StreamHeader.Version);
+
+                await _peopleStore.WriteToStream(personId, new[] { new EventData(personId, new PersonHasBeenInvitedToBbq(churras.Id, churras.Date, churras.Reason) , new { CreatedBy = _user.Id }, header.StreamHeader.Version, DateTime.Now.ToString()) }, expectedVersion: header.StreamHeader.Version == 0 ? null : header.StreamHeader.Version);
             }
 
             return await req.CreateResponse(HttpStatusCode.Created, churrasSnapshot);

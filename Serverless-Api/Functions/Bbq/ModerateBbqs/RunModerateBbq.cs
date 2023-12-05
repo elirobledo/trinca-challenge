@@ -29,15 +29,29 @@ namespace Serverless_Api
 
             bbq.Apply(new BbqStatusUpdated(moderationRequest.GonnaHappen, moderationRequest.TrincaWillPay));
 
-            var lookups = await _snapshots.AsQueryable<Lookups>("Lookups").SingleOrDefaultAsync();
+           
+                var lookups = await _snapshots.AsQueryable<Lookups>("Lookups").SingleOrDefaultAsync();
 
-            foreach (var personId in lookups.PeopleIds)
-            {
-                var person = await _persons.GetAsync(personId);
-                var @event = new PersonHasBeenInvitedToBbq(bbq.Id, bbq.Date, bbq.Reason);
-                person.Apply(@event);
-                await _persons.SaveAsync(person);
-            }
+                foreach (var personId in lookups.PeopleIds)
+                {
+                    var person = await _persons.GetAsync(personId);
+
+                    if (person.IsCoOwner == false)
+                    {
+                        if (moderationRequest.GonnaHappen)
+                        {
+                            var @event = new PersonHasBeenInvitedToBbq(bbq.Id, bbq.Date, bbq.Reason);
+                            person.Apply(@event);
+                            await _persons.SaveAsync(person);
+                        }
+                        else
+                        {
+                            person.Apply(new InviteWasDeclined { InviteId = bbq.Id, PersonId = person.Id });
+
+                            await _persons.SaveAsync(person);
+                        }
+                    }
+                }
 
             await _repository.SaveAsync(bbq);
 
