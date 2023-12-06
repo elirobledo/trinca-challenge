@@ -47,6 +47,15 @@ namespace Domain.Entities
             invite.Status = InviteStatus.Declined;
         }
 
+        public void When(InviteWasRecused @event)
+        {
+            var invite = Invites.FirstOrDefault(x => x.Id == @event.InviteId);
+
+            if (invite == null)
+                return;
+
+            invite.Status = InviteStatus.Recused;
+        }
         public object? TakeSnapshot()
         {
             return new

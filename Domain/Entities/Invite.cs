@@ -14,6 +14,7 @@ namespace Domain.Entities
     {
         Pending,
         Accepted,
-        Declined
+        Declined,
+        Recused
     }
 }

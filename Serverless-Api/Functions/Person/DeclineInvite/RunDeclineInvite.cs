@@ -29,7 +29,15 @@ namespace Serverless_Api
             if (person == null)
                 return req.CreateResponse(System.Net.HttpStatusCode.NoContent);
 
-            person.Apply(new InviteWasDeclined { InviteId = inviteId, PersonId = person.Id });
+            if(person.Invites.Where(i => i.Status == InviteStatus.Accepted).Count() == 0) {
+                person.Apply(new InviteWasDeclined { InviteId = inviteId, PersonId = person.Id });
+                
+            }
+            else
+            {
+                person.Apply(new InviteWasRecused { InviteId = inviteId, PersonId = person.Id });
+            }
+            
 
             await _repository.SaveAsync(person);
             //Implementar impacto da recusa do convite no churrasco caso ele já tivesse sido aceito antes
